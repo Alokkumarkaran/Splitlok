@@ -14,32 +14,38 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// Create uploads folder if not exists
-const uploadDir = './uploads';
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-// Static folders
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/groups', groupRoutes); // Add this line
-
-// ... existing imports (express, cors, etc.)
-const PORT = process.env.PORT || 5000;
-
-// Update your CORS to allow the Vercel URL
+// ==========================================
+// 1. SECURITY & MIDDLEWARE (Must be FIRST)
+// ==========================================
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173", // Use env var for security
+  origin: process.env.FRONTEND_URL || "http://localhost:5173", 
   credentials: true
 }));
 
-// Listen on 0.0.0.0 for Render
+app.use(express.json()); // Allows your server to read JSON data
+
+// ==========================================
+// 2. FOLDER SETUP
+// ==========================================
+const uploadDir = './uploads';
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
+// ==========================================
+// 3. API ROUTES (Must come AFTER middleware)
+// ==========================================
+app.use('/api/auth', authRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/groups', groupRoutes); 
+
+// ==========================================
+// 4. START SERVER
+// ==========================================
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
