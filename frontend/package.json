@@ -1,0 +1,26 @@
+{
+  "name": "flatsync-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "axios": "^1.16.0",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^6.30.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.2.4",
+    "vite": "^5.3.4"
+  }
+}
