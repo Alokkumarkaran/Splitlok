@@ -1,8 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Splitlok</title>
+  
+  <!-- Prevents accidental zooming on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <!-- ========================================== -->
+  <!-- PWA & MOBILE APP LINKS (ADD THESE)         -->
+  <!-- ========================================== -->
+  
+  <!-- Links to your configuration file -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- ADDED .png TO THE END OF THESE LINKS -->
+  
+  <!-- The icon shown in the browser tab -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/Splitlok-192x192.png" />
+  
+  <!-- CRITICAL FOR iPHONES: Tells iOS what icon to put on the home screen -->
+  <!-- Note: Apple prefers the 192x192 size for the home screen icon to prevent weird scaling -->
+  <link rel="apple-touch-icon" href="/Splitlok-192x192.png" />
+  
+  <!-- Colors the very top bar of the phone (near the battery/wifi icons) -->
+  <meta name="theme-color" content="#0f172a" />
+
 </head>
 <body>
   <div id="root"></div>
