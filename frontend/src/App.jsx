@@ -1,14 +1,16 @@
 import React, { useContext, useState } from 'react';
-// 1. IMPORT useNavigate HERE:
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
+
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import History from './pages/History';
+import ScrollToTop from './components/ScrollToTop';
+// 🚨 Removed the duplicate AppContent import from here!
 
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(AppContext);
@@ -17,20 +19,20 @@ const PrivateRoute = ({ children }) => {
 
 function AppContent() {
   const { user } = useContext(AppContext);
-  
-  // 2. INITIALIZE useNavigate
   const navigate = useNavigate(); 
   
   const [openModalTrigger, setOpenModalTrigger] = useState(false);
 
-  // 3. CREATE A SMART TRIGGER FUNCTION
   const handleOpenAddExpense = () => {
-    navigate('/'); // Instantly jump back to the Dashboard...
-    setTimeout(() => setOpenModalTrigger(true), 50); // ...and pop the modal open!
+    navigate('/'); 
+    setTimeout(() => setOpenModalTrigger(true), 50); 
   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] transition-colors duration-300 font-sans text-slate-900 dark:text-slate-100 pb-20 md:pb-0 relative">
+      
+      {/* Scroll fix is perfectly placed here! */}
+      <ScrollToTop />
       
       <Toaster 
         position="top-center"
@@ -52,7 +54,6 @@ function AppContent() {
         }}
       />
 
-      {/* 4. PASS THE SMART TRIGGER TO THE NAVBAR */}
       {user && <Navbar onOpenAddExpense={handleOpenAddExpense} />} 
       
       <Routes>

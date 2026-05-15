@@ -56,7 +56,7 @@ const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
             
             {myTransactions.length === 0 ? (
               <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-700">
-                <div className="text-5xl mb-4">🎉</div>
+                <div className="text-5xl mb-4 drop-shadow-sm dark:drop-shadow-none">🎉</div>
                 <h3 className="text-xl font-bold text-slate-700 dark:text-white">You're all settled up!</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">You don't owe anyone, and nobody owes you.</p>
               </div>
@@ -87,7 +87,7 @@ const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
                       {isPayer ? (
                         <a 
                           href={upiLink} target="_blank" rel="noreferrer"
-                          className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:scale-105 active:scale-95"
+                          className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] dark:shadow-none hover:scale-105 active:scale-95"
                         >
                           <Send size={18} /> Pay via UPI
                         </a>

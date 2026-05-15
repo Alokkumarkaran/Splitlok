@@ -3,31 +3,24 @@ import React, { createContext, useState, useEffect } from 'react';
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // Initialize perfectly on first load
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return savedTheme;
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-    }
-    return 'light';
-  });
+  // Check local storage or default to dark
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
-  // Force the HTML tag to update instantly
   useEffect(() => {
     const root = window.document.documentElement;
+    // This physically adds or removes the 'dark' class from your HTML tag
     if (theme === 'dark') {
       root.classList.add('dark');
-      root.classList.remove('light');
     } else {
       root.classList.remove('dark');
-      root.classList.add('light');
     }
+    // Save preference so it remembers when they refresh
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // The toggle function
-  const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

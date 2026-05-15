@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* ========================================== */
+/* THE MAGIC LINE FOR TAILWIND V4 DARK MODE   */
+/* ========================================== */
+@variant dark (&:is(.dark *));
+
 /* Force the app to take up the absolute full screen */
 html, body, #root {
   width: 100%;

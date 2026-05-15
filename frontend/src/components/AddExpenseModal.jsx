@@ -67,7 +67,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSubmit }) => {
                   <span className="absolute left-4 top-[2.2rem] text-3xl font-black text-slate-300 dark:text-slate-600">₹</span>
                   <input 
                     required type="number" min="1" step="0.01"
-                    className="w-full p-6 pl-12 bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600 dark:focus:border-blue-500 text-slate-900 dark:text-white text-4xl font-black tracking-tighter transition-all"
+                    className="w-full p-6 pl-12 bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600/50 dark:focus:ring-blue-500/50 focus:border-blue-600 dark:focus:border-blue-500 text-slate-900 dark:text-white text-4xl font-black tracking-tighter transition-all"
                     placeholder="0"
                     value={form.amount}
                     onChange={(e) => setForm({...form, amount: e.target.value})}
