@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import connectDB from './config/db.js';
+import userRoutes from './routes/userRoutes.js';
 
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
@@ -40,6 +41,7 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/groups', groupRoutes); 
+app.use('/api/users', userRoutes);
 
 // ==========================================
 // 4. START SERVER

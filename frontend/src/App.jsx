@@ -4,13 +4,13 @@ import { AppProvider, AppContext } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 
+import Profile from './pages/Profile'; // Fixed the stray slash here!
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import History from './pages/History';
 import ScrollToTop from './components/ScrollToTop';
-// 🚨 Removed the duplicate AppContent import from here!
 
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(AppContext);
@@ -31,7 +31,6 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] transition-colors duration-300 font-sans text-slate-900 dark:text-slate-100 pb-20 md:pb-0 relative">
       
-      {/* Scroll fix is perfectly placed here! */}
       <ScrollToTop />
       
       <Toaster 
@@ -70,6 +69,9 @@ function AppContent() {
         } />
         
         <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
+        
+        {/* ADDED THE PROFILE ROUTE HERE */}
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       </Routes>
     </div>
   );

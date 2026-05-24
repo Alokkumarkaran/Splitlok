@@ -35,6 +35,13 @@ export const joinGroup = (data) => API.post('/groups/join', data);
 export const getGroupData = (groupId) => API.get(`/expenses/${groupId}`);
 export const createExpense = (expenseData) => API.post('/expenses', expenseData);
 
+// Profile Updates
+export const updateProfile = (data) => API.put('/users/profile', data);
+export const updatePassword = (data) => API.put('/users/password', data);
+
+// The Archive / Start Fresh Trigger
+export const startNewCycle = (groupId) => API.post(`/groups/${groupId}/archive`);
+
 // Added the settle up route so you can pay people back!
 export const settleUp = (settleData) => API.post('/expenses/settle', settleData); 
 

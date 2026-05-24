@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { LogOut, Home, List, Moon, Sun, Zap, PlusSquare } from 'lucide-react';
+import { LogOut, Home, List, Moon, Sun, Zap, PlusSquare, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = ({ onOpenAddExpense }) => {
@@ -68,7 +68,7 @@ const Navbar = ({ onOpenAddExpense }) => {
     // PRIMARY ACTION BUTTON (The glowing '+' button)
     if (isPrimary && onClick) {
       return (
-        <div className="relative -top-5"> {/* Elevates the primary button slightly out of the pill */}
+        <div className="relative -top-5">
           <div className="absolute inset-2 bg-indigo-600 dark:bg-cyan-400 rounded-2xl blur-md opacity-40 dark:opacity-50 animate-pulse"></div>
           <motion.button 
             whileTap={{ scale: 0.85 }}
@@ -111,46 +111,70 @@ const Navbar = ({ onOpenAddExpense }) => {
       {/* ========================================== */}
       {/* MOBILE TOP HEADER (With Dynamic Greeting) */}
       {/* ========================================== */}
-      <div className="md:hidden sticky top-0 z-40 w-full bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-2xl px-5 py-3 flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+      <div className="md:hidden sticky top-0 z-40 w-full bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-2xl px-5 py-3.5 flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm">
   
-  {/* LEFT SIDE: Logo & Greeting */}
-  <div className="flex flex-col justify-center">
-    
-    {/* LOGO */}
-    {/* Note: Added -ml-1 just in case your PNG has built-in transparent padding on the edges */}
-    <Link to="/" className="flex items-center group -ml-1">
-      <img 
-        src="/Splitlok-512x512.png" 
-        alt="Splitlok" 
-        className="h-7 sm:h-8 w-auto object-contain group-active:scale-95 transition-all duration-300" 
-      />
-    </Link>
+        {/* LEFT SIDE: Big Logo & Stacked Greeting */}
+        <div className="flex items-center gap-3.5">
+          
+          {/* BIG LOGO */}
+          <Link to="/" className="flex items-center flex-shrink-0 group">
+            <img 
+              src="/Splitlok-512x512.png" 
+              alt="Splitlok" 
+              // UPGRADED: Takes up full height (h-11) with a slight drop shadow
+              className="h-11 sm:h-12 w-auto object-contain group-active:scale-95 transition-all duration-300 drop-shadow-sm dark:drop-shadow-none" 
+            />
+          </Link>
 
-    {/* DYNAMIC GREETING */}
-    {firstName && (
-      <motion.span 
-        key={greeting} 
-        initial={{ opacity: 0, x: -5 }} 
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="text-[10px] sm:text-[11px] font-bold mt-0.5 tracking-wider uppercase pl-1"
-      >
-        <span className="text-slate-400 dark:text-slate-500">{greeting},</span>{' '}
-        <span className="text-slate-700 dark:text-slate-200">{firstName}</span> 👋
-      </motion.span>
-    )}
-  </div>
-
-  {/* RIGHT SIDE: Theme Toggle */}
-  <button 
-    onClick={toggleTheme} 
-    className="relative p-2.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-500 hover:text-slate-700 dark:text-[#fcd34d] border border-slate-200/60 dark:border-slate-700/50 shadow-sm active:scale-90 transition-all duration-300 flex items-center justify-center"
-    aria-label="Toggle Dark Mode"
+          {/* DYNAMIC STACKED GREETING */}
+          {firstName && (
+            <motion.div 
+              key={greeting} 
+              initial={{ opacity: 0, x: -10 }} 
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="flex flex-col justify-center pt-0.5"
+            >
+              {/* Top Line: Greeting */}
+              <span className="text-[10px] font-extrabold text-indigo-500/90 dark:text-cyan-400/90 uppercase tracking-widest leading-none mb-1">
+                {greeting}
+              </span>
+              
+              {/* Bottom Line: Name + Waving Hand */}
+              <span className="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-none tracking-tight flex items-center gap-1.5">
+  {firstName} 
+  <motion.span 
+    // 🌟 PREMIUM UX: Smooth, natural wave with a subtle scale pop!
+    animate={{ 
+      rotate: [0, 20, -10, 20, -10, 0],
+      scale: [1, 1.15, 1.15, 1.15, 1.15, 1] 
+    }}
+    transition={{ 
+      duration: 1.5, // Faster, snappier wave
+      ease: "easeInOut",
+      repeat: Infinity, 
+      repeatDelay: 4.5 // Waits a few seconds before waving again
+    }}
+    // Increased size and added a soft drop shadow
+    className="inline-block origin-bottom-right text-2xl sm:text-3xl ml-1 drop-shadow-md dark:drop-shadow-none"
   >
-    {theme === 'dark' ? <Sun size={18} className="stroke-[2.5px]" /> : <Moon size={18} className="stroke-[2.5px]" />}
-  </button>
+    👋
+  </motion.span>
+</span>
+            </motion.div>
+          )}
+        </div>
 
-</div>
+        {/* RIGHT SIDE: Theme Toggle */}
+        <button 
+          onClick={toggleTheme} 
+          className="relative p-2.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-500 hover:text-slate-700 dark:text-[#fcd34d] border border-slate-200/60 dark:border-slate-700/50 shadow-sm active:scale-90 transition-all duration-300 flex items-center justify-center flex-shrink-0"
+          aria-label="Toggle Dark Mode"
+        >
+          {theme === 'dark' ? <Sun size={18} className="stroke-[2.5px]" /> : <Moon size={18} className="stroke-[2.5px]" />}
+        </button>
+
+      </div>
 
       {/* ========================================== */}
       {/* DESKTOP TOP NAV */}
@@ -178,6 +202,8 @@ const Navbar = ({ onOpenAddExpense }) => {
           <div className="flex gap-2 items-center">
             <DesktopNavItem to="/" icon={Home} label="Dashboard" />
             <DesktopNavItem to="/history" icon={List} label="History" />
+            <DesktopNavItem to="/profile" icon={User} label="Profile" />
+            
             <div className="w-px h-6 bg-slate-200 dark:bg-slate-700/50 mx-2"></div>
             <button onClick={toggleTheme} className="p-2.5 rounded-xl text-slate-500 bg-slate-50 dark:bg-slate-800 transition-all hover:bg-slate-100 dark:hover:bg-slate-700">
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -195,10 +221,8 @@ const Navbar = ({ onOpenAddExpense }) => {
       <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] flex justify-between items-center p-2 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
         <MobileNavItem to="/" icon={Home} />
         <MobileNavItem to="/history" icon={List} />
-        
-        {/* The glowing raised button */}
         <MobileNavItem icon={PlusSquare} onClick={onOpenAddExpense} isPrimary={true} />
-        
+        <MobileNavItem to="/profile" icon={User} />
         <MobileNavItem icon={LogOut} onClick={() => setShowLogoutModal(true)} />
       </nav>
 

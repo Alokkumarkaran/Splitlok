@@ -27,48 +27,23 @@ export const addExpense = async (req, res) => {
       return { user: userId, amountOwed: share };
     });
 
-    // 3. Save Expense Record
+    // 3. Save Expense Record ONLY (No group balance updates needed anymore!)
     const expense = await Expense.create({
-      groupId, description, amount, paidBy, 
+      groupId, 
+      description, 
+      amount, 
+      paidBy, 
       splitAmong: exactSplits,
       receiptImage: req.file ? req.file.path : null 
     });
-
-    // 4. THE MASTER LEDGER UPDATE
-    const group = await Group.findById(groupId);
-
-    // Ensure payer exists in balance ledger
-    if (!group.balances.find(b => b.user.toString() === paidBy.toString())) {
-      group.balances.push({ user: paidBy, balance: 0 });
-    }
-
-    // A. CREDIT the Payer (+)
-    const payerIdx = group.balances.findIndex(b => b.user.toString() === paidBy.toString());
-    group.balances[payerIdx].balance += amount;
-
-    // B. DEBIT Everyone in the split (-)
-    exactSplits.forEach(split => {
-      let memberIdx = group.balances.findIndex(b => b.user.toString() === split.user.toString());
-      if (memberIdx === -1) {
-        group.balances.push({ user: split.user, balance: 0 });
-        memberIdx = group.balances.length - 1;
-      }
-      group.balances[memberIdx].balance -= split.amountOwed;
-    });
-
-    // C. Clean up floating point errors (e.g., 0.000000001)
-    group.balances.forEach(b => {
-      b.balance = Math.round(b.balance * 100) / 100;
-    });
-
-    await group.save();
 
     const populatedExpense = await Expense.findById(expense._id)
       .populate('paidBy', 'name email')
       .populate('splitAmong.user', 'name email');
 
-    res.status(201).json({ expense: populatedExpense, balances: group.balances });
+    res.status(201).json({ expense: populatedExpense });
   } catch (error) {
+    console.error("Add Expense Error:", error);
     res.status(500).json({ message: "Failed to calculate split" });
   }
 };
@@ -82,6 +57,7 @@ export const settleUp = async (req, res) => {
     const settleAmount = parseFloat(amount);
     const payerId = req.user._id; // Person clicking the button is paying
 
+    // Save Settlement Record ONLY
     const payment = await Expense.create({
       groupId,
       description: "Settled Up 💸",
@@ -91,32 +67,11 @@ export const settleUp = async (req, res) => {
       splitAmong: [{ user: receiverId, amountOwed: settleAmount }]
     });
 
-    const group = await Group.findById(groupId);
-
-    // Payer's balance goes UP (+)
-    let payerIdx = group.balances.findIndex(b => b.user.toString() === payerId.toString());
-    if (payerIdx === -1) {
-      group.balances.push({ user: payerId, balance: 0 });
-      payerIdx = group.balances.length - 1;
-    }
-    group.balances[payerIdx].balance = Math.round((group.balances[payerIdx].balance + settleAmount) * 100) / 100;
-
-    // Receiver's balance goes DOWN (-)
-    let receiverIdx = group.balances.findIndex(b => b.user.toString() === receiverId.toString());
-    if (receiverIdx === -1) {
-      group.balances.push({ user: receiverId, balance: 0 });
-      receiverIdx = group.balances.length - 1;
-    }
-    group.balances[receiverIdx].balance = Math.round((group.balances[receiverIdx].balance - settleAmount) * 100) / 100;
-
-    await group.save();
-
-    // FIX FOR "UNKNOWN": Populate names for the settlement!
     const populatedPayment = await Expense.findById(payment._id)
       .populate('paidBy', 'name email')
       .populate('splitAmong.user', 'name email');
 
-    res.status(200).json({ payment: populatedPayment, balances: group.balances });
+    res.status(200).json({ payment: populatedPayment });
   } catch (error) {
     console.error("Settle Error:", error);
     res.status(500).json({ message: "Failed to settle up" });
@@ -128,21 +83,53 @@ export const settleUp = async (req, res) => {
 // ==========================================
 export const getGroupData = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.groupId)
-      .populate('members', 'name email upiId')
-      .populate('balances.user', 'name');
+    const groupId = req.params.groupId || req.params.id; 
+    
+    const group = await Group.findById(groupId).populate('members', 'name email');
+    if (!group) return res.status(404).json({ message: 'Flat not found' });
 
-    if (!group) return res.status(404).json({ message: "Group not found" });
+    // Fetch ONLY ACTIVE expenses
+    const expenses = await Expense.find({ groupId, isArchived: false })
+      .populate('paidBy', 'name email')
+      .populate('splitAmong.user', 'name email')
+      .sort({ createdAt: -1 });
 
-    // Fetch all expenses and populate the names for the UI
-    const expenses = await Expense.find({ groupId: req.params.groupId })
-      .sort({ createdAt: -1 })
-      .populate('paidBy', 'name email upiId')
-      .populate('splitAmong.user', 'name email upiId');
+    // DYNAMIC BALANCE ENGINE (Null-Safe Version)
+    const balanceMap = {};
+    
+    group.members.forEach(member => {
+      if (member && member._id) {
+        balanceMap[member._id.toString()] = { user: member, balance: 0 };
+      }
+    });
 
-    res.status(200).json({ group, balances: group.balances, expenses });
+    expenses.forEach(exp => {
+      if (!exp.paidBy || !exp.paidBy._id) return; 
+      
+      const payerId = exp.paidBy._id.toString();
+
+      if (balanceMap[payerId]) {
+        balanceMap[payerId].balance += exp.amount;
+      }
+
+      if (Array.isArray(exp.splitAmong)) {
+        exp.splitAmong.forEach(split => {
+          if (split.user && split.user._id) {
+            const splitUserId = split.user._id.toString();
+            if (balanceMap[splitUserId]) {
+              balanceMap[splitUserId].balance -= split.amountOwed;
+            }
+          }
+        });
+      }
+    });
+
+    const balances = Object.values(balanceMap);
+    const archivedExpenses = await Expense.find({ groupId, isArchived: true }).populate('paidBy', 'name email').sort({ createdAt: -1 });
+
+    res.status(200).json({ group, expenses, archivedExpenses, balances });
   } catch (error) {
-    console.error("Fetch Data Error:", error);
-    res.status(500).json({ message: "Failed to fetch data" });
+    console.error("CRITICAL ERROR IN getGroupData:", error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };

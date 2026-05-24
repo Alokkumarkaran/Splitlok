@@ -61,9 +61,16 @@ const Register = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center w-full max-w-md mx-auto"
         >
-          <div className="w-20 h-20 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/20 flex items-center justify-center mb-6 shadow-2xl">
-            <Zap className="text-white fill-white" size={40} />
-          </div>
+          <motion.div 
+                      whileHover={{ scale: 1.05 }}
+                      className="w-25 h-25 bg-white rounded-[1.5rem] p-2 flex items-center justify-center mb-8 shadow-2xl overflow-hidden"
+                    >
+                      <img 
+                        src="/Splitlok-512x512.png" 
+                        alt="Splitlok Logo" 
+                        className="w-full h-full object-contain" 
+                      />
+                    </motion.div>
           <h1 className="text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-4 tracking-tight leading-[1.1]">
             Start <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">Syncing.</span>

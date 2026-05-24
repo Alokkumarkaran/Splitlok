@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { loginUser } from '../services/api';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast'; 
@@ -61,15 +61,24 @@ const Login = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center w-full max-w-md mx-auto"
         >
-          <div className="w-20 h-20 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/20 flex items-center justify-center mb-8 shadow-2xl">
-            <Zap className="text-white fill-white" size={40} />
-          </div>
+          {/* UPGRADED: Custom Image Logo instead of the Zap icon */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="w-25 h-25 bg-white rounded-[1.5rem] p-2 flex items-center justify-center mb-8 shadow-2xl overflow-hidden"
+          >
+            <img 
+              src="/Splitlok-512x512.png" 
+              alt="Splitlok Logo" 
+              className="w-full h-full object-contain" 
+            />
+          </motion.div>
+          
           <h1 className="text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-4 tracking-tight leading-[1.1]">
             Split bills.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">Not friendships.</span>
           </h1>
           <p className="text-indigo-100/90 text-base lg:text-lg font-medium px-4 mt-2">
-            Join FlatSync to instantly track, share, and settle expenses with your roommates.
+            Join Splitlok to instantly track, share, and settle expenses with your roommates.
           </p>
         </motion.div>
       </div>
@@ -156,7 +165,8 @@ const Login = () => {
           
           <div className="mt-10 text-center flex-shrink-0">
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-              New to FlatSync? <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-black hover:underline transition-all">Create an account</Link>
+              {/* UPGRADED: Replaced FlatSync with Splitlok */}
+              New to Splitlok? <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-black hover:underline transition-all">Create an account</Link>
             </p>
           </div>
         </motion.div>
