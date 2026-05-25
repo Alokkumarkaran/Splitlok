@@ -27,7 +27,7 @@ export const addExpense = async (req, res) => {
       return { user: userId, amountOwed: share };
     });
 
-    // 3. Save Expense Record ONLY (No group balance updates needed anymore!)
+    // 3. Save Expense Record ONLY
     const expense = await Expense.create({
       groupId, 
       description, 
@@ -38,8 +38,8 @@ export const addExpense = async (req, res) => {
     });
 
     const populatedExpense = await Expense.findById(expense._id)
-      .populate('paidBy', 'name email')
-      .populate('splitAmong.user', 'name email');
+      .populate('paidBy', 'name email upiId') // <-- ADDED upiId
+      .populate('splitAmong.user', 'name email upiId'); // <-- ADDED upiId
 
     res.status(201).json({ expense: populatedExpense });
   } catch (error) {
@@ -68,8 +68,8 @@ export const settleUp = async (req, res) => {
     });
 
     const populatedPayment = await Expense.findById(payment._id)
-      .populate('paidBy', 'name email')
-      .populate('splitAmong.user', 'name email');
+      .populate('paidBy', 'name email upiId') // <-- ADDED upiId
+      .populate('splitAmong.user', 'name email upiId'); // <-- ADDED upiId
 
     res.status(200).json({ payment: populatedPayment });
   } catch (error) {
@@ -85,13 +85,14 @@ export const getGroupData = async (req, res) => {
   try {
     const groupId = req.params.groupId || req.params.id; 
     
-    const group = await Group.findById(groupId).populate('members', 'name email');
+    // FETCH GROUP & MEMBERS
+    const group = await Group.findById(groupId).populate('members', 'name email upiId'); // <-- ADDED upiId
     if (!group) return res.status(404).json({ message: 'Flat not found' });
 
     // Fetch ONLY ACTIVE expenses
     const expenses = await Expense.find({ groupId, isArchived: false })
-      .populate('paidBy', 'name email')
-      .populate('splitAmong.user', 'name email')
+      .populate('paidBy', 'name email upiId') // <-- ADDED upiId
+      .populate('splitAmong.user', 'name email upiId') // <-- ADDED upiId
       .sort({ createdAt: -1 });
 
     // DYNAMIC BALANCE ENGINE (Null-Safe Version)
@@ -125,7 +126,11 @@ export const getGroupData = async (req, res) => {
     });
 
     const balances = Object.values(balanceMap);
-    const archivedExpenses = await Expense.find({ groupId, isArchived: true }).populate('paidBy', 'name email').sort({ createdAt: -1 });
+    
+    // Fetch Archived Expenses
+    const archivedExpenses = await Expense.find({ groupId, isArchived: true })
+      .populate('paidBy', 'name email upiId') // <-- ADDED upiId
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ group, expenses, archivedExpenses, balances });
   } catch (error) {

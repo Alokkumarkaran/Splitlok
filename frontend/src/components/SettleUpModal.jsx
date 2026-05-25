@@ -64,8 +64,23 @@ const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
               <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                 {myTransactions.map((tx, index) => {
                   const isPayer = tx.from._id === user._id; // Check if current user is the one paying
-                  const upiLink = generateUPILink(tx.to.upiId || 'test@upi', tx.to.name, tx.amount);
                   
+                  // ========================================================
+                  // 🚨 BULLETPROOF DYNAMIC UPI LOGIC
+                  // ========================================================
+                  // 1. Get the raw string ID of the person receiving money
+                  const receiverId = String(tx.to._id || tx.to);
+                  
+                  // 2. Search the ORIGINAL members array passed from Dashboard
+                  const receiverDetails = members?.find(m => String(m._id) === receiverId);
+                  
+                  // 3. Extract the upiId from the original database record
+                  const receiverUpiId = receiverDetails?.upiId;
+                  
+                  // 4. Generate the link
+                  const upiLink = generateUPILink(receiverUpiId || 'not-set@upi', tx.to.name, tx.amount);
+                  // ========================================================
+
                   return (
                     <motion.div 
                       initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}
@@ -87,6 +102,13 @@ const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
                       {isPayer ? (
                         <a 
                           href={upiLink} target="_blank" rel="noreferrer"
+                          // If they haven't set a UPI ID, we can trigger a standard alert so the payment doesn't fail silently
+                          onClick={(e) => {
+                            if (!receiverUpiId) {
+                              e.preventDefault();
+                              alert(`${tx.to.name} has not added a UPI ID to their profile yet!`);
+                            }
+                          }}
                           className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] dark:shadow-none hover:scale-105 active:scale-95"
                         >
                           <Send size={18} /> Pay via UPI
