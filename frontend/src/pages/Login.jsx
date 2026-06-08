@@ -5,6 +5,10 @@ import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { loginUser } from '../services/api';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast'; 
+// Add this line at the top of Dashboard.jsx
+
+
+// ... existing imports ...
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -13,24 +17,25 @@ const Login = () => {
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return; // Prevent multiple clicks
+    
     setIsLoading(true);
-
     try {
       const res = await loginUser(formData);
-      const userData = res.data.user || res.data;
-      const tokenData = res.data.token || null;
+      // Access data directly (as your API response structure seems robust)
+      const userData = res.data; 
+      const tokenData = res.data.token;
       
       login(userData, tokenData);
       
       toast.success(`Welcome back, ${userData.name.split(' ')[0]}!`);
-      navigate('/');
-      
+      // navigate('/') is not strictly needed because App.jsx logic 
+      // will see user !== null and redirect automatically.
     } catch (err) {
-      toast.error(err.response?.data?.message || "Invalid credentials. Try again.");
-    } finally {
-      setIsLoading(false);
+      toast.error(err.response?.data?.message || "Invalid credentials.");
+      setIsLoading(false); // Only stop loading on error
     }
   };
 

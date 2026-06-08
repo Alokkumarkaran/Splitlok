@@ -1,26 +1,28 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // 1. Bulletproof Local Storage Check
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true); // 👈 TRACKING INITIALIZATION
+
+  // useEffect runs ONCE when the app boots up
+  useEffect(() => {
     try {
       const savedUser = localStorage.getItem('user');
-      // Prevent crash if the literal string "undefined" gets saved
       if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
-        return JSON.parse(savedUser);
+        setUser(JSON.parse(savedUser));
       }
     } catch (error) {
       console.error("Failed to parse user from local storage:", error);
+    } finally {
+      // Always set loading to false, even if local storage is empty
+      setLoadingAuth(false); 
     }
-    return null; // Fallback to no user if anything goes wrong
-  });
+  }, []);
 
   const login = (userData, token) => {
     setUser(userData);
-    
-    // Safely store user data. If userData is somehow undefined, it won't break things next time.
     if (userData) {
       localStorage.setItem('user', JSON.stringify(userData));
     }
@@ -36,7 +38,7 @@ export const AppProvider = ({ children }) => {
   };
 
   return (
-    <AppContext.Provider value={{ user, login, logout }}>
+    <AppContext.Provider value={{ user, login, logout, loadingAuth }}>
       {children}
     </AppContext.Provider>
   );

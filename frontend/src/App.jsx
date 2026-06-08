@@ -1,10 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
+import PremiumLoader from './components/PremiumLoader'; // Your new component
 
-import Profile from './pages/Profile'; // Fixed the stray slash here!
+import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,15 +14,22 @@ import History from './pages/History';
 import ScrollToTop from './components/ScrollToTop';
 
 const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AppContext);
+  const { user, loadingAuth } = useContext(AppContext);
+  
+  if (loadingAuth) return <PremiumLoader fullScreen={true} text="Verifying session..." />;
   return user ? children : <Navigate to="/login" />;
 };
 
 function AppContent() {
-  const { user } = useContext(AppContext);
+  const { user, loadingAuth } = useContext(AppContext);
   const navigate = useNavigate(); 
   
   const [openModalTrigger, setOpenModalTrigger] = useState(false);
+
+  // Still show the global loader if app is initializing auth
+  if (loadingAuth) {
+    return <PremiumLoader fullScreen={true} text="Starting Splitlok..." />;
+  }
 
   const handleOpenAddExpense = () => {
     navigate('/'); 
@@ -69,8 +77,6 @@ function AppContent() {
         } />
         
         <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
-        
-        {/* ADDED THE PROFILE ROUTE HERE */}
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       </Routes>
     </div>

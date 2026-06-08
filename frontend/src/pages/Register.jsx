@@ -6,6 +6,7 @@ import { registerUser } from '../services/api';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
+
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', upiId: '' });
   const [isLoading, setIsLoading] = useState(false);

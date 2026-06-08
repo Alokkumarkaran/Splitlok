@@ -5,6 +5,10 @@ import ExpenseCard from '../components/ExpenseCard';
 import { ArrowLeft, Receipt, CheckCircle, Wallet, AlertCircle, Archive, Calendar, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+// Add this line at the top of Dashboard.jsx
+import PremiumLoader from '../components/PremiumLoader';
+
+// ... existing imports ...
 
 const History = () => {
   const { user } = useContext(AppContext);
@@ -201,43 +205,29 @@ const History = () => {
 
           {/* LOADING STATE */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {[1, 2, 3, 4].map(n => (
-                <div key={n} className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-700/50 animate-pulse flex gap-4">
-                  <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                  <div className="flex-1 space-y-3 py-1">
-                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-16">
-              <AlertCircle size={48} className="mx-auto text-rose-500 mb-4" />
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Oops! Something went wrong.</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">We couldn't load your history. Please try refreshing.</p>
-            </div>
-          ) : filteredData.length === 0 ? (
-            /* EMPTY STATES */
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-3xl bg-slate-50 dark:bg-slate-800/20">
-              {filter === 'settlements' ? <CheckCircle size={56} className="mx-auto text-emerald-500/50 mb-4" />
-              : filter === 'personal' ? <Receipt size={56} className="mx-auto text-indigo-500/50 mb-4" />
-              : filter === 'archived' ? <Archive size={56} className="mx-auto text-amber-500/50 mb-4" />
-              : <Wallet size={56} className="mx-auto text-slate-400 dark:text-slate-500/50 mb-4" />}
-              
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                {filter === 'settlements' ? 'No settlements found' : filter === 'personal' ? "No personal expenses found" : filter === 'archived' ? 'No Past Cycles found' : 'No history found'}
-              </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto">
-                {monthFilter !== 'all' ? "Try changing the month filter to see older records." : "Start adding bills from the dashboard to see them here."}
-              </p>
-            </motion.div>
-          ) : (
-            /* DATA GRID WITH MONTH DIVIDERS */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-              <AnimatePresence mode="popLayout">
-                {filteredData.map((exp, index) => {
+  <PremiumLoader text="Fetching your ledger history..." />
+) : error ? (
+  <div className="text-center py-16">
+    <AlertCircle size={48} className="mx-auto text-rose-500 mb-4" />
+    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Oops! Something went wrong.</h2>
+    <p className="text-slate-500 dark:text-slate-400 text-sm">We couldn't load your history. Please try refreshing.</p>
+  </div>
+) : filteredData.length === 0 ? (
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-3xl bg-slate-50 dark:bg-slate-800/20">
+    {filter === 'settlements' ? <CheckCircle size={56} className="mx-auto text-emerald-500/50 mb-4" />
+    : filter === 'personal' ? <Receipt size={56} className="mx-auto text-indigo-500/50 mb-4" />
+    : filter === 'archived' ? <Archive size={56} className="mx-auto text-amber-500/50 mb-4" />
+    : <Wallet size={56} className="mx-auto text-slate-400 dark:text-slate-500/50 mb-4" />}
+    
+    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+      {filter === 'settlements' ? 'No settlements found' : filter === 'personal' ? "No personal expenses found" : filter === 'archived' ? 'No Past Cycles found' : 'No history found'}
+    </h2>
+  </motion.div>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+    {/* Your filteredData.map content stays exactly as it was */}
+    <AnimatePresence mode="popLayout">
+      {filteredData.map((exp, index) => {
                   // Determine if we need a new Month Divider
                   const expDateObj = new Date(exp.createdAt);
                   const monthLabel = expDateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });

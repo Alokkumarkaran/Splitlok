@@ -9,6 +9,10 @@ import { Plus, Home, Copy, CheckCircle, Receipt, ArrowRightLeft, Users, Zap } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom'; // Upgraded from <a> tags!
 import toast from 'react-hot-toast'; 
+// Add this line at the top of Dashboard.jsx
+import PremiumLoader from '../components/PremiumLoader';
+
+// ... existing imports ...
 
 const Dashboard = ({ openModalTrigger, resetModalTrigger }) => {
   const { user, login } = useContext(AppContext);
@@ -113,19 +117,8 @@ const Dashboard = ({ openModalTrigger, resetModalTrigger }) => {
   // ==========================================
   // PREMIUM LOADING STATE
   // ==========================================
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-[#0B1120] transition-colors">
-        <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }} 
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20"
-        >
-          <Zap className="text-indigo-600 dark:text-indigo-400" size={32} />
-        </motion.div>
-        <p className="text-slate-500 dark:text-slate-400 font-bold tracking-wide animate-pulse">Syncing Flat...</p>
-      </div>
-    );
+ if (loading) {
+    return <PremiumLoader fullScreen={true} text="Syncing your flat..." />;
   }
 
   // ==========================================
