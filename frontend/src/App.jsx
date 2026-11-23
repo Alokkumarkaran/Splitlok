@@ -2,8 +2,9 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { Toaster } from 'react-hot-toast';
-import PremiumLoader from './components/PremiumLoader'; // Your new component
+import PremiumLoader from './components/PremiumLoader';
 
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
@@ -12,6 +13,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import History from './pages/History';
 import ScrollToTop from './components/ScrollToTop';
+import NotificationPopup from './components/NotificationPopup';
+import NotificationModal from './components/NotificationModal';
 
 const PrivateRoute = ({ children }) => {
   const { user, loadingAuth } = useContext(AppContext);
@@ -63,6 +66,12 @@ function AppContent() {
 
       {user && <Navbar onOpenAddExpense={handleOpenAddExpense} />} 
       
+      {/* Real-Time Floating Popup Alert */}
+      <NotificationPopup />
+
+      {/* Slide-out Notification Drawer / Modal */}
+      <NotificationModal />
+      
       <Routes>
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
@@ -87,9 +96,11 @@ function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <NotificationProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </NotificationProvider>
       </AppProvider>
     </ThemeProvider>
   );

@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
-import { X, Receipt, IndianRupee } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Receipt, IndianRupee, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AddExpenseModal = ({ isOpen, onClose, onSubmit }) => {
   const [form, setForm] = useState({ description: '', amount: '', image: null });
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setForm({ ...form, image: file });
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setForm({ ...form, image: null });
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     await onSubmit(form);
+    handleRemoveImage();
     setForm({ description: '', amount: '', image: null });
     setIsSubmitting(false);
   };
@@ -77,7 +97,54 @@ const AddExpenseModal = ({ isOpen, onClose, onSubmit }) => {
                   </p>
                 </div>
 
-                <div className="pt-4 pb-6 sm:pb-0">
+                {/* Receipt Upload Dropzone */}
+                <div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    className="hidden"
+                    id="receipt-file-input"
+                  />
+                  
+                  {imagePreview ? (
+                    <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-2 flex items-center gap-3">
+                      <img 
+                        src={imagePreview} 
+                        alt="Receipt preview" 
+                        className="w-14 h-14 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-800 dark:text-white truncate">
+                          {form.image?.name || "Receipt photo"}
+                        </p>
+                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                          Receipt attached
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                        title="Remove photo"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full py-3 px-4 border border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-2xl flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-50/50 dark:bg-slate-900/30 transition-all text-xs font-bold"
+                    >
+                      <Camera size={16} />
+                      <span>Attach Receipt Photo (Optional)</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="pt-2 pb-6 sm:pb-0">
                   <button 
                     type="submit" disabled={isSubmitting}
                     className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 text-white p-4 rounded-2xl font-bold text-lg transition-all shadow-lg shadow-blue-600/30 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"

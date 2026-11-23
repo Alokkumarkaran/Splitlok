@@ -5,8 +5,8 @@ import { ArrowLeft, User, Mail, CreditCard, Lock, ShieldCheck, Users, RefreshCw,
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-// Add this line at the top of Dashboard.jsx
 import PremiumLoader from '../components/PremiumLoader';
+import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../utils/pushNotifications';
 
 // ... existing imports ...
 
@@ -33,8 +33,29 @@ const Profile = () => {
   const [groupData, setGroupData] = useState(null);
   const [isGroupLoading, setIsGroupLoading] = useState(true);
 
+  // Push Notification State
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
+  const [isPushLoading, setIsPushLoading] = useState(true);
+
   // Custom Modal State
   const [confirmModal, setConfirmModal] = useState(null);
+
+  // Check if push is already enabled
+  useEffect(() => {
+    const checkPushStatus = async () => {
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.getSubscription();
+          setIsPushEnabled(!!subscription);
+        } catch (e) {
+          console.error("Failed to check push status", e);
+        }
+      }
+      setIsPushLoading(false);
+    };
+    checkPushStatus();
+  }, []);
 
   // Load Group Data (to see roommates and admin status)
   useEffect(() => {
@@ -221,6 +242,50 @@ const Profile = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+
+            {/* PUSH NOTIFICATION CARD */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white dark:bg-[#1E2330] rounded-[2rem] p-6 sm:p-8 shadow-xl border border-slate-100 dark:border-slate-800 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
+                  <AlertTriangle size={20} className="stroke-[2.5px]" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">Push Notifications</h2>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+                Get instantly notified when someone adds an expense in your flat. Don't miss a beat (or a bill)!
+              </p>
+              <button 
+                disabled={isPushLoading}
+                onClick={async () => {
+                  setIsPushLoading(true);
+                  if (isPushEnabled) {
+                    const success = await unsubscribeFromPushNotifications();
+                    if (success) {
+                      setIsPushEnabled(false);
+                      toast.success("Notifications disabled. 🔕");
+                    } else {
+                      toast.error("Failed to disable notifications.");
+                    }
+                  } else {
+                    const success = await subscribeToPushNotifications();
+                    if (success) {
+                      setIsPushEnabled(true);
+                      toast.success("Notifications enabled! 🚀");
+                    } else {
+                      toast.error("Failed to enable notifications. Please check your browser settings.");
+                    }
+                  }
+                  setIsPushLoading(false);
+                }}
+                className={`w-full md:w-auto px-8 py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 ${
+                  isPushEnabled 
+                    ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30' 
+                    : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'
+                }`}
+              >
+                {isPushLoading ? <><Loader2 size={18} className="animate-spin"/> Updating...</> : (isPushEnabled ? 'Disable Notifications' : 'Enable Notifications')}
+              </button>
             </motion.div>
           </div>
 

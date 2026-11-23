@@ -45,4 +45,11 @@ export const startNewCycle = (groupId) => API.post(`/groups/${groupId}/archive`)
 // Added the settle up route so you can pay people back!
 export const settleUp = (settleData) => API.post('/expenses/settle', settleData); 
 
+// Send payment reminder poke
+export const sendReminder = (data) => API.post('/expenses/remind', data);
+
+// Notification Routes
+export const getNotifications = () => API.get('/notifications');
+export const markNotificationsAsRead = () => API.post('/notifications/mark-read');
+
 export default API;

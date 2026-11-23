@@ -1,12 +1,55 @@
-import React, { useMemo, useContext } from 'react';
-import { X, Send, Clock } from 'lucide-react';
+import React, { useMemo, useContext, useState } from 'react';
+import { X, Send, Clock, CheckCircle, Loader2, BellRing } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateTransactions } from '../utils/settleLogic';
 import { generateUPILink } from '../utils/generateUPI';
-import { AppContext } from '../context/AppContext'; // <-- Imported AppContext
+import { AppContext } from '../context/AppContext';
+import { settleUp, sendReminder } from '../services/api';
+import toast from 'react-hot-toast';
 
-const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
-  const { user } = useContext(AppContext); // <-- Get the logged-in user
+const SettleUpModal = ({ isOpen, onClose, balances, members, groupId, onSettled }) => {
+  const { user } = useContext(AppContext);
+  const [settlingId, setSettlingId] = useState(null);
+  const [remindingId, setRemindingId] = useState(null);
+
+  const handleSendReminder = async (debtorId, amount, debtorName) => {
+    if (!groupId) {
+      toast.error("No active flat found");
+      return;
+    }
+    setRemindingId(debtorId);
+    try {
+      await sendReminder({ groupId, debtorId, amount });
+      toast.success(`Hinglish reminder sent to ${debtorName}! 🥷`, {
+        icon: '🔔'
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send reminder");
+    } finally {
+      setRemindingId(null);
+    }
+  };
+
+  const handleRecordSettlement = async (receiverId, amount, receiverName) => {
+    if (!groupId) {
+      toast.error("No active flat found");
+      return;
+    }
+    setSettlingId(receiverId);
+    try {
+      await settleUp({
+        groupId,
+        receiverId,
+        amount
+      });
+      toast.success(`Settled ₹${Number(amount).toLocaleString('en-IN')} with ${receiverName}! 💸`);
+      if (onSettled) onSettled();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to record settlement");
+    } finally {
+      setSettlingId(null);
+    }
+  };
 
   // 1. Calculate ALL flat transactions
   const allTransactions = useMemo(() => {
@@ -100,22 +143,51 @@ const SettleUpModal = ({ isOpen, onClose, balances, members }) => {
                       
                       {/* SMART BUTTON LOGIC */}
                       {isPayer ? (
-                        <a 
-                          href={upiLink} target="_blank" rel="noreferrer"
-                          // If they haven't set a UPI ID, we can trigger a standard alert so the payment doesn't fail silently
-                          onClick={(e) => {
-                            if (!receiverUpiId) {
-                              e.preventDefault();
-                              alert(`${tx.to.name} has not added a UPI ID to their profile yet!`);
-                            }
-                          }}
-                          className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] dark:shadow-none hover:scale-105 active:scale-95"
-                        >
-                          <Send size={18} /> Pay via UPI
-                        </a>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                          <a 
+                            href={upiLink} target="_blank" rel="noreferrer"
+                            onClick={(e) => {
+                              if (!receiverUpiId) {
+                                e.preventDefault();
+                                alert(`${tx.to.name} has not added a UPI ID to their profile yet!`);
+                              }
+                            }}
+                            className="flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95 text-xs sm:text-sm"
+                          >
+                            <Send size={15} /> Pay UPI
+                          </a>
+                          
+                          <button
+                            type="button"
+                            onClick={() => handleRecordSettlement(receiverId, tx.amount, tx.to.name)}
+                            disabled={settlingId === receiverId}
+                            className="flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold transition-all active:scale-95 text-xs sm:text-sm disabled:opacity-50 shadow-md shadow-indigo-600/20"
+                          >
+                            {settlingId === receiverId ? (
+                              <><Loader2 size={15} className="animate-spin" /> Saving...</>
+                            ) : (
+                              <><CheckCircle size={15} /> Mark Paid</>
+                            )}
+                          </button>
+                        </div>
                       ) : (
-                        <div className="flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-6 py-3 rounded-xl font-bold cursor-default">
-                          <Clock size={18} /> Awaiting
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSendReminder(tx.from._id, tx.amount, tx.from.name)}
+                            disabled={remindingId === tx.from._id}
+                            className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-3.5 py-2.5 rounded-xl font-bold transition-all active:scale-95 text-xs sm:text-sm shadow-md shadow-amber-500/20 disabled:opacity-50"
+                            title="Send hilarious Hinglish payment reminder"
+                          >
+                            {remindingId === tx.from._id ? (
+                              <><Loader2 size={14} className="animate-spin" /> Reminding...</>
+                            ) : (
+                              <><BellRing size={14} /> Remind 🥷</>
+                            )}
+                          </button>
+                          <div className="hidden sm:flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-3 py-2.5 rounded-xl text-xs font-semibold cursor-default">
+                            <Clock size={14} /> Awaiting
+                          </div>
                         </div>
                       )}
                     </motion.div>

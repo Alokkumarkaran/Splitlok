@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import groupRoutes from './routes/groupRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -42,6 +43,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/groups', groupRoutes); 
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ==========================================
 // 4. START SERVER

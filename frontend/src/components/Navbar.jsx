@@ -2,12 +2,14 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { LogOut, Home, List, Moon, Sun, Zap, PlusSquare, User } from 'lucide-react';
+import { NotificationContext } from '../context/NotificationContext';
+import { LogOut, Home, List, Moon, Sun, Zap, PlusSquare, User, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = ({ onOpenAddExpense }) => {
   const { user, logout } = useContext(AppContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const { unreadCount, setIsModalOpen } = useContext(NotificationContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -165,14 +167,31 @@ const Navbar = ({ onOpenAddExpense }) => {
           )}
         </div>
 
-        {/* RIGHT SIDE: Theme Toggle */}
-        <button 
-          onClick={toggleTheme} 
-          className="relative p-2.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-500 hover:text-slate-700 dark:text-[#fcd34d] border border-slate-200/60 dark:border-slate-700/50 shadow-sm active:scale-90 transition-all duration-300 flex items-center justify-center flex-shrink-0"
-          aria-label="Toggle Dark Mode"
-        >
-          {theme === 'dark' ? <Sun size={18} className="stroke-[2.5px]" /> : <Moon size={18} className="stroke-[2.5px]" />}
-        </button>
+        {/* RIGHT SIDE: Notifications & Theme Toggle */}
+        <div className="flex items-center gap-2">
+          {/* Notification Bell Button (Mobile) */}
+          <button 
+            onClick={() => setIsModalOpen(true)} 
+            className="relative p-2.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/60 dark:border-slate-700/50 shadow-sm active:scale-90 transition-all duration-300 flex items-center justify-center flex-shrink-0"
+            aria-label="View notifications"
+          >
+            <Bell size={18} className="stroke-[2.5px]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-md shadow-rose-500/40 animate-bounce">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Theme Toggle */}
+          <button 
+            onClick={toggleTheme} 
+            className="relative p-2.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-500 hover:text-slate-700 dark:text-[#fcd34d] border border-slate-200/60 dark:border-slate-700/50 shadow-sm active:scale-90 transition-all duration-300 flex items-center justify-center flex-shrink-0"
+            aria-label="Toggle Dark Mode"
+          >
+            {theme === 'dark' ? <Sun size={18} className="stroke-[2.5px]" /> : <Moon size={18} className="stroke-[2.5px]" />}
+          </button>
+        </div>
 
       </div>
 
@@ -205,6 +224,21 @@ const Navbar = ({ onOpenAddExpense }) => {
             <DesktopNavItem to="/profile" icon={User} label="Profile" />
             
             <div className="w-px h-6 bg-slate-200 dark:bg-slate-700/50 mx-2"></div>
+            
+            {/* Desktop Notification Bell Button */}
+            <button 
+              onClick={() => setIsModalOpen(true)} 
+              className="relative p-2.5 rounded-xl text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 transition-all hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 flex items-center justify-center group"
+              title="Notifications"
+            >
+              <Bell size={18} className="group-hover:rotate-12 transition-transform duration-200" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-md shadow-rose-500/40 animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
             <button onClick={toggleTheme} className="p-2.5 rounded-xl text-slate-500 bg-slate-50 dark:bg-slate-800 transition-all hover:bg-slate-100 dark:hover:bg-slate-700">
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>

@@ -26,7 +26,7 @@ export const calculateTransactions = (balances, members) => {
     transactions.push({
       from: debtor,
       to: creditor,
-      amount: Math.round(settledAmount)
+      amount: Math.round(settledAmount * 100) / 100
     });
 
     debtor.amount -= settledAmount;

@@ -48,12 +48,8 @@ export const updatePassword = async (req, res) => {
       return res.status(400).json({ message: "Incorrect current password." });
     }
 
-    // 3. Hash the new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // 4. Save the new password
-    user.password = hashedPassword;
+    // 3. Save the new password (pre('save') hook handles hashing)
+    user.password = newPassword;
     await user.save();
 
     res.status(200).json({ message: "Password updated successfully!" });
@@ -62,3 +58,49 @@ export const updatePassword = async (req, res) => {
     res.status(500).json({ message: "Server error while updating password." });
   }
 };
+
+// ==========================================
+// 3. SUBSCRIBE TO PUSH NOTIFICATIONS
+// ==========================================
+export const subscribeToPush = async (req, res) => {
+  try {
+    const subscription = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    // Check if this exact subscription already exists
+    const exists = user.pushSubscriptions.some(sub => sub.endpoint === subscription.endpoint);
+    if (!exists) {
+      user.pushSubscriptions.push(subscription);
+      await user.save();
+    }
+
+    res.status(201).json({ message: "Successfully subscribed to push notifications." });
+  } catch (error) {
+    console.error("Push Subscription Error:", error);
+    res.status(500).json({ message: "Server error during push subscription." });
+  }
+};
+
+// ==========================================
+// 4. UNSUBSCRIBE FROM PUSH NOTIFICATIONS
+// ==========================================
+export const unsubscribeToPush = async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    user.pushSubscriptions = user.pushSubscriptions.filter(sub => sub.endpoint !== endpoint);
+    await user.save();
+
+    res.status(200).json({ message: "Successfully unsubscribed." });
+  } catch (error) {
+    console.error("Push Unsubscription Error:", error);
+    res.status(500).json({ message: "Server error during push unsubscription." });
+  }
+};

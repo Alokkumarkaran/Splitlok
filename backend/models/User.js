@@ -6,7 +6,15 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   upiId: { type: String, required: true },
-  groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null } 
+  groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null },
+  pushSubscriptions: [{
+    endpoint: String,
+    expirationTime: Date,
+    keys: {
+      p256dh: String,
+      auth: String
+    }
+  }]
 }, { timestamps: true });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
@@ -15,10 +23,11 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 export default mongoose.model('User', userSchema);
