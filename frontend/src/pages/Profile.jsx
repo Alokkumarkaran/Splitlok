@@ -295,39 +295,39 @@ const Profile = () => {
                       return;
                     }
                     setIsPushLoading(true);
-                        try {
-                          if (isPushEnabled) {
-                            const success = await unsubscribeFromPushNotifications();
-                            if (success) {
-                              setIsPushEnabled(false);
-                              toast.success("Notifications disabled. 🔕");
-                            } else {
-                              toast.error("Failed to disable notifications.");
-                            }
-                          } else {
-                            const success = await subscribeToPushNotifications();
-                            if (success) {
-                              setIsPushEnabled(true);
-                              toast.success("Notifications enabled! 🚀");
-                            } else {
-                              toast.error("Could not enable notifications. Please check your browser permissions.");
-                            }
-                          }
-                      } catch (err) {
-                        console.error("Push toggle error:", err);
-                        toast.error("Failed to update notification settings.");
-                      } finally {
-                        setIsPushLoading(false);
+                    try {
+                      if (isPushEnabled) {
+                        const success = await unsubscribeFromPushNotifications();
+                        if (success) {
+                          setIsPushEnabled(false);
+                          toast.success("Notifications disabled. 🔕");
+                        } else {
+                          toast.error("Failed to disable notifications.");
+                        }
+                      } else {
+                        const success = await subscribeToPushNotifications();
+                        if (success) {
+                          setIsPushEnabled(true);
+                          toast.success("Notifications enabled! 🚀");
+                        } else {
+                          toast.error("Could not enable notifications. Please check your browser permissions.");
+                        }
                       }
+                    } catch (err) {
+                      console.error("Push toggle error:", err);
+                      toast.error("Failed to update notification settings.");
+                    } finally {
+                      setIsPushLoading(false);
                     }
-                  }
-                  !isPushSupported
-                ? 'bg-slate-400 cursor-not-allowed shadow-none'
-                : isPushEnabled
-                ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
-                : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
-                }`}
-              >
+                  }}
+                  className={`w-full md:w-auto px-8 py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 ${
+                    !isPushSupported
+                      ? 'bg-slate-400 cursor-not-allowed shadow-none'
+                      : isPushEnabled
+                      ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
+                      : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
+                  }`}
+                >
                 {isPushLoading ? (
                   <><Loader2 size={18} className="animate-spin" /> Updating...</>
                 ) : !isPushSupported ? (
