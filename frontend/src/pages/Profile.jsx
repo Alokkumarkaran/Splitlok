@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
+import { NotificationContext } from '../context/NotificationContext';
 import { updateProfile, updatePassword, getGroupData, startNewCycle } from '../services/api';
-import { ArrowLeft, User, Mail, CreditCard, Lock, ShieldCheck, Users, RefreshCw, AlertTriangle, Loader2, CheckCircle, Bell, BellOff } from 'lucide-react';
+import { ArrowLeft, User, Mail, CreditCard, Lock, ShieldCheck, Users, RefreshCw, AlertTriangle, Loader2, CheckCircle, Bell, BellOff, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -12,6 +13,7 @@ import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '
 
 const Profile = () => {
   const { user, login } = useContext(AppContext);
+  const { setIsPermissionGuideOpen } = useContext(NotificationContext);
 
   // State for Personal Info
   const [profileData, setProfileData] = useState({
@@ -279,55 +281,81 @@ const Profile = () => {
             {/* PUSH NOTIFICATION CARD */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white dark:bg-[#1E2330] rounded-[2rem] p-6 sm:p-8 shadow-xl border border-slate-100 dark:border-slate-800 transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
-                    <Bell size={20} className="stroke-[2.5px]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">Push Notifications</h2>
+                <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
+                  <Bell size={20} className="stroke-[2.5px]" />
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-                  Get real-time OS alerts directly on your device when a flatmate adds a bill or settles up. Never miss a payment reminder!
-                </p>
-                <button
-                  disabled={isPushLoading || !isPushSupported}
-                  onClick={async () => {
-                    if (!isPushSupported) {
-                      toast.error("Push notifications are not supported by this browser.");
-                      return;
-                    }
-                    setIsPushLoading(true);
-                    try {
-                      if (isPushEnabled) {
-                        const success = await unsubscribeFromPushNotifications();
-                        if (success) {
-                          setIsPushEnabled(false);
-                          toast.success("Notifications disabled. 🔕");
-                        } else {
-                          toast.error("Failed to disable notifications.");
-                        }
-                      } else {
-                        const success = await subscribeToPushNotifications();
-                        if (success) {
-                          setIsPushEnabled(true);
-                          toast.success("Notifications enabled! 🚀");
-                        } else {
-                          toast.error("Could not enable notifications. Please check your browser permissions.");
-                        }
-                      }
-                    } catch (err) {
-                      console.error("Push toggle error:", err);
-                      toast.error("Failed to update notification settings.");
-                    } finally {
-                      setIsPushLoading(false);
-                    }
-                  }}
-                  className={`w-full md:w-auto px-8 py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 ${
-                    !isPushSupported
-                      ? 'bg-slate-400 cursor-not-allowed shadow-none'
-                      : isPushEnabled
-                      ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
-                      : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
-                  }`}
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">Push Notifications</h2>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">
+                Get real-time OS alerts directly on your device when a flatmate adds a bill or settles up. Never miss a payment reminder!
+              </p>
+
+              {/* Blocked in Browser Banner */}
+              {typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'denied' && (
+                <div 
+                  onClick={() => setIsPermissionGuideOpen(true)}
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 mb-5 cursor-pointer hover:bg-amber-500/15 transition-all group"
                 >
+                  <div className="flex items-center gap-2.5">
+                    <AlertTriangle size={18} className="flex-shrink-0 text-amber-500" />
+                    <span className="text-xs font-semibold">Notifications blocked in your browser</span>
+                  </div>
+                  <span className="text-xs font-bold text-indigo-600 dark:text-cyan-400 underline flex items-center gap-1 flex-shrink-0 group-hover:translate-x-0.5 transition-transform">
+                    Fix in Settings <ArrowRight size={13} />
+                  </span>
+                </div>
+              )}
+
+              <button
+                disabled={isPushLoading || !isPushSupported}
+                onClick={async () => {
+                  if (!isPushSupported) {
+                    toast.error("Push notifications are not supported by this browser.");
+                    return;
+                  }
+
+                  // If permission is denied in browser, open the step-by-step guide
+                  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'denied') {
+                    setIsPermissionGuideOpen(true);
+                    return;
+                  }
+
+                  setIsPushLoading(true);
+                  try {
+                    if (isPushEnabled) {
+                      const res = await unsubscribeFromPushNotifications();
+                      if (res && (res.success || res === true)) {
+                        setIsPushEnabled(false);
+                        toast.success("Notifications disabled. 🔕");
+                      } else {
+                        toast.error("Failed to disable notifications.");
+                      }
+                    } else {
+                      const res = await subscribeToPushNotifications();
+                      if (res && (res.success || res === true)) {
+                        setIsPushEnabled(true);
+                        toast.success("Notifications enabled! 🚀");
+                      } else if (res && (res.reason === 'denied' || res.reason === 'dismissed' || res.error?.name === 'NotAllowedError')) {
+                        setIsPermissionGuideOpen(true);
+                      } else {
+                        toast.error("Could not enable notifications. Please check your browser permissions.");
+                      }
+                    }
+                  } catch (err) {
+                    console.error("Push toggle error:", err);
+                    toast.error("Failed to update notification settings.");
+                  } finally {
+                    setIsPushLoading(false);
+                  }
+                }}
+                className={`w-full md:w-auto px-8 py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 ${
+                  !isPushSupported
+                    ? 'bg-slate-400 cursor-not-allowed shadow-none'
+                    : isPushEnabled
+                    ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
+                    : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
+                }`}
+              >
                 {isPushLoading ? (
                   <><Loader2 size={18} className="animate-spin" /> Updating...</>
                 ) : !isPushSupported ? (

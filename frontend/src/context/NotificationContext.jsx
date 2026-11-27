@@ -4,7 +4,18 @@ import { getNotifications, markNotificationsAsRead } from '../services/api';
 import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../utils/pushNotifications';
 import toast from 'react-hot-toast';
 
-export const NotificationContext = createContext();
+export const NotificationContext = createContext({
+  notifications: [],
+  unreadCount: 0,
+  activePopup: null,
+  isModalOpen: false,
+  isPushSupported: false,
+  isPushEnabled: false,
+  isPermissionGuideOpen: false,
+  setIsPermissionGuideOpen: () => {},
+  setIsPushEnabled: () => {},
+  requestPushPermission: async () => false
+});
 
 // Harmonious glass-ping audio using Web Audio API (zero external assets, instant response)
 const playNotificationChime = () => {
@@ -51,6 +62,7 @@ export const NotificationProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [isPushSupported, setIsPushSupported] = useState(false);
   const [isPushEnabled, setIsPushEnabled] = useState(false);
+  const [isPermissionGuideOpen, setIsPermissionGuideOpen] = useState(false);
 
   const eventSourceRef = useRef(null);
   const popupTimerRef = useRef(null);
@@ -59,10 +71,12 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       setIsPushSupported(true);
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.pushManager.getSubscription().then((sub) => {
-          setIsPushEnabled(!!sub);
-        });
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (reg && reg.pushManager) {
+          reg.pushManager.getSubscription().then((sub) => {
+            setIsPushEnabled(!!sub);
+          });
+        }
       }).catch(() => {});
 
       const handleSwMessage = (event) => {
@@ -78,14 +92,28 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const requestPushPermission = async () => {
-    const success = await subscribeToPushNotifications();
-    if (success) {
+    if (!('Notification' in window)) {
+      toast.error("Push notifications are not supported on this browser.");
+      return false;
+    }
+
+    if (Notification.permission === 'denied') {
+      setIsPermissionGuideOpen(true);
+      return false;
+    }
+
+    const res = await subscribeToPushNotifications();
+    if (res && (res.success || res === true)) {
       setIsPushEnabled(true);
       toast.success("Push alerts enabled! 🚀");
+      return true;
+    } else if (res && (res.reason === 'denied' || res.reason === 'dismissed' || res.error?.name === 'NotAllowedError')) {
+      setIsPermissionGuideOpen(true);
+      return false;
     } else {
       toast.error("Could not enable push alerts. Please check browser settings.");
+      return false;
     }
-    return success;
   };
 
   // Fetch persisted notification history from API
@@ -250,6 +278,9 @@ export const NotificationProvider = ({ children }) => {
         loading,
         isPushSupported,
         isPushEnabled,
+        setIsPushEnabled,
+        isPermissionGuideOpen,
+        setIsPermissionGuideOpen,
         requestPushPermission
       }}
     >

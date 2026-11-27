@@ -12,10 +12,23 @@ const NotificationPopup = () => {
 
   const isSettlement = activePopup.type === 'settlement';
   const isReminder = activePopup.type === 'payment_reminder';
-  const initial = activePopup.senderName ? activePopup.senderName.charAt(0).toUpperCase() : 'F';
+  const initial = activePopup.senderName ? activePopup.senderName.charAt(0).toUpperCase() : 'S';
 
   const headerTitle = activePopup.title || (
-    isSettlement ? 'Paisa hi paisa hoga! 🤑' : isReminder ? 'Bhai paise kab dega? 🥺' : 'Bhai, kharcha ho gaya! 💸'
+    isSettlement ? 'Splitlok • Payment Received ✨' : isReminder ? 'Splitlok • Settle Up Reminder ⏳' : 'Splitlok • New Expense 🧾'
+  );
+
+  const formattedAmount = Number(activePopup.amount || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+
+  const oneLinerMessage = activePopup.message || (
+    isSettlement
+      ? `Miracles do happen! ${activePopup.senderName} settled ₹${formattedAmount} with you. Balance 0 — party kab hai? 🍕`
+      : isReminder
+      ? `${activePopup.senderName} is poking you for ₹${formattedAmount}. "Kal pakka" trick purani ho gayi, settle up! 😜`
+      : `${activePopup.senderName} spent ₹${formattedAmount} on '${activePopup.description || 'Flat Bill'}'. QR ready rakho! 💸`
   );
 
   const handleOpenLedger = () => {
@@ -97,39 +110,17 @@ const NotificationPopup = () => {
 
             {/* Notification Details */}
             <div className="flex-1 min-w-0 pr-1">
-              <div className="flex flex-wrap items-baseline gap-1.5 leading-tight">
-                <span className="font-black text-slate-900 dark:text-white text-base">
-                  {activePopup.senderName}
-                </span>
-                <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold">
-                  {isSettlement ? 'settled' : isReminder ? 'poked for' : 'spent'}
-                </span>
-                <span className={`font-black text-base ${
-                  isSettlement 
-                    ? 'text-emerald-600 dark:text-emerald-400' 
-                    : isReminder
-                      ? 'text-amber-600 dark:text-amber-400'
-                      : 'text-indigo-600 dark:text-indigo-400'
-                }`}>
-                  ₹{Number(activePopup.amount).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-                </span>
-              </div>
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                {oneLinerMessage}
+              </p>
 
-              {/* Object / Description Name */}
-              {!isReminder && (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase">Item:</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm truncate bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">
-                    "{activePopup.description}"
+              {/* Fintech Micro-Tagline */}
+              {activePopup.funCaption && (
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-cyan-400 border border-indigo-500/20">
+                    <Sparkles size={10} /> {activePopup.funCaption}
                   </span>
                 </div>
-              )}
-
-              {/* Fun Hinglish Punchline */}
-              {activePopup.funCaption && (
-                <p className="text-xs font-bold text-indigo-600 dark:text-cyan-400 mt-1.5 italic">
-                  👉 {activePopup.funCaption}
-                </p>
               )}
             </div>
           </div>

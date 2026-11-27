@@ -180,27 +180,29 @@ const NotificationModal = () => {
                       <div className="flex-1 min-w-0 pr-2">
                         <div className="flex items-center justify-between gap-1">
                           <p className="text-xs font-black text-slate-900 dark:text-white truncate">
-                            {notif.title || (isSettlement ? "Paisa hi paisa hoga! 🤑" : notif.type === 'payment_reminder' ? "Bhai paise kab dega? 🥺" : "Bhai, kharcha ho gaya! 💸")}
+                            {notif.title || (isSettlement ? "Splitlok • Payment Received ✨" : notif.type === 'payment_reminder' ? "Splitlok • Settle Up Reminder ⏳" : "Splitlok • New Expense 🧾")}
                           </p>
                           <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex-shrink-0">
                             {formatTimeAgo(notif.createdAt)}
                           </span>
                         </div>
 
-                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-snug">
+                        <p className="text-xs text-slate-700 dark:text-slate-200 mt-1 font-medium leading-snug">
                           {notif.message || (
                             isSettlement ? (
-                              <>{notif.senderName} settled up <span className="font-black text-emerald-600 dark:text-emerald-400">₹{notif.amount?.toLocaleString('en-IN')}</span></>
+                              <>{notif.senderName} settled <span className="font-bold text-emerald-600 dark:text-emerald-400">₹{notif.amount?.toLocaleString('en-IN')}</span> with you • Balance squared</>
+                            ) : notif.type === 'payment_reminder' ? (
+                              <>Friendly nudge: {notif.senderName} requested settlement of <span className="font-bold text-amber-600 dark:text-amber-400">₹{notif.amount?.toLocaleString('en-IN')}</span></>
                             ) : (
-                              <>{notif.senderName} added '{notif.description}' of <span className="font-black text-indigo-600 dark:text-cyan-400">₹{notif.amount?.toLocaleString('en-IN')}</span></>
+                              <>{notif.senderName} added '{notif.description}' (<span className="font-bold text-indigo-600 dark:text-cyan-400">₹{notif.amount?.toLocaleString('en-IN')}</span>)</>
                             )
                           )}
                         </p>
 
                         {notif.funCaption && (
-                          <p className="text-[11px] font-bold text-indigo-600 dark:text-cyan-400 mt-1 italic">
-                            👉 {notif.funCaption}
-                          </p>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-cyan-400 border border-indigo-500/20 mt-1.5">
+                            <Sparkles size={9} /> {notif.funCaption}
+                          </span>
                         )}
                       </div>
 

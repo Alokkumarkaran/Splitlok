@@ -16,12 +16,12 @@ self.addEventListener('push', function (event) {
     data = { body: event.data ? event.data.text() : 'New update in your flat!' };
   }
 
-  const title = data.title || '💸 Splitlok Flat Alert';
+  const title = data.title || 'Splitlok • Ledger Alert ⚡';
   const options = {
-    body: data.body || 'A flatmate just logged a new expense.',
+    body: data.body || 'Your flat ledger has been updated.',
     icon: data.icon || '/Splitlok-192x192.png',
     badge: data.badge || '/Splitlok-192x192.png',
-    vibrate: [120, 60, 120, 60, 200],
+    vibrate: [100, 50, 100],
     tag: data.tag || `splitlok-${Date.now()}`,
     renotify: true,
     requireInteraction: false,
@@ -30,7 +30,7 @@ self.addEventListener('push', function (event) {
       payload: data.meta || null
     },
     actions: data.actions || [
-      { action: 'open', title: '👀 View Split' },
+      { action: 'open', title: 'Open Ledger' },
       { action: 'dismiss', title: 'Dismiss' }
     ]
   };

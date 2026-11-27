@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { NotificationProvider } from './context/NotificationContext';
+import { NotificationProvider, NotificationContext } from './context/NotificationContext';
 import { Toaster } from 'react-hot-toast';
 import PremiumLoader from './components/PremiumLoader';
 
@@ -15,6 +15,8 @@ import History from './pages/History';
 import ScrollToTop from './components/ScrollToTop';
 import NotificationPopup from './components/NotificationPopup';
 import NotificationModal from './components/NotificationModal';
+import NotificationPermissionModal from './components/NotificationPermissionModal';
+import PushNotificationPrompt from './components/PushNotificationPrompt';
 
 const PrivateRoute = ({ children }) => {
   const { user, loadingAuth } = useContext(AppContext);
@@ -25,6 +27,7 @@ const PrivateRoute = ({ children }) => {
 
 function AppContent() {
   const { user, loadingAuth } = useContext(AppContext);
+  const { isPermissionGuideOpen, setIsPermissionGuideOpen, setIsPushEnabled } = useContext(NotificationContext);
   const navigate = useNavigate(); 
   
   const [openModalTrigger, setOpenModalTrigger] = useState(false);
@@ -71,6 +74,16 @@ function AppContent() {
 
       {/* Slide-out Notification Drawer / Modal */}
       <NotificationModal />
+
+      {/* Onboarding & Re-visit Push Notification Prompt */}
+      <PushNotificationPrompt />
+
+      {/* Browser & System Notification Permission Guidance Modal */}
+      <NotificationPermissionModal
+        isOpen={isPermissionGuideOpen}
+        onClose={() => setIsPermissionGuideOpen(false)}
+        onPermissionGranted={() => setIsPushEnabled(true)}
+      />
       
       <Routes>
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

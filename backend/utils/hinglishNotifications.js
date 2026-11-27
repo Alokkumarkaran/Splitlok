@@ -1,10 +1,11 @@
 /**
- * Dynamic, Funny & Engaging Hinglish Notification Generator
- * Curated for flatmate banter, roommate culture, and instant relatability.
+ * Splitlok Premium Fintech & Witty Flatmate Notification Engine
+ * Combines high-engagement flatmate banter with clean, dynamic one-liners and elevated Splitlok branding.
+ * Punchy, hilarious, transparent, and penny-perfect.
  */
 
 /**
- * 1. When an Expense is Added (Bhai pe udhaari chadh gayi 💸)
+ * 1. When an Expense is Added
  */
 export const getRandomExpenseMessage = ({ payerName, expenseName, memberShare, totalAmount }) => {
   const formattedShare = Number(memberShare || totalAmount).toLocaleString('en-IN', {
@@ -18,29 +19,29 @@ export const getRandomExpenseMessage = ({ payerName, expenseName, memberShare, t
 
   const templates = [
     {
-      title: "Bhai, kharcha ho gaya! 💸",
-      body: `${payerName} just added '${expenseName}'. Tera hissa ₹${formattedShare} hai. Ambani mat ban, time pe de dena! 😜`,
-      funCaption: "Ambani mat ban, time pe de dena! 💸"
+      title: "Splitlok • Kharcha Alert! 💸",
+      body: `${payerName} spent ₹${formattedTotal} on '${expenseName}'. Tera hissa ₹${formattedShare} banta hai — QR code dhoondo jaldi! 🏃‍♂️`,
+      funCaption: "No 'kal pakka dunga' • Penny-perfect split"
     },
     {
-      title: "Naya bill faada gaya hai! 🚨",
-      body: `${payerName} added '${expenseName}' of ₹${formattedTotal}. Tera hissa ₹${formattedShare} banta hai. App khol aur dekh apni badhti udhaari! 📉`,
-      funCaption: "App khol aur dekh apni badhti udhaari! 🚨"
+      title: "Splitlok • Bill Split 🧾",
+      body: `${payerName} logged '${expenseName}' (₹${formattedTotal}) • Pocket se ₹${formattedShare} nikaalo bhai, dosti safe rahegi! 🤝`,
+      funCaption: "Continuous ledger math updated"
     },
     {
-      title: "Jeb dhili karne ka waqt aa gaya! ✂️",
-      body: `You owe ${payerName} ₹${formattedShare} for '${expenseName}'. Dosti bani rahe, isliye chup-chaap check kar le! 🤝`,
-      funCaption: "Dosti bani rahe, isliye check kar le! ✂️"
+      title: "Splitlok • New Expense Logged 🍕",
+      body: `'${expenseName}' added by ${payerName} (₹${formattedTotal}) • Your share is ₹${formattedShare}. Wallet ne chupchaap aansu bahaye! 🥲`,
+      funCaption: "Zero rounding errors, guaranteed"
     },
     {
-      title: "Kharcha alert! Wallets out! 💳",
-      body: `${payerName} ne ₹${formattedTotal} uda diye on '${expenseName}'. Tera share: ₹${formattedShare}. QR code dhoondo jaldi! 🏃‍♂️`,
-      funCaption: "QR code dhoondo jaldi! 💳"
+      title: "Splitlok • Flat Damage Report 📉",
+      body: `${payerName} split ₹${formattedTotal} for '${expenseName}'. Your share: ₹${formattedShare}. Party chalu, balance update chalu! 🎉`,
+      funCaption: "Keeping flat karma 100% clean"
     },
     {
-      title: "Budget ka janaza nikal gaya! ⚰️😂",
-      body: `${payerName} dropped ₹${formattedTotal} on '${expenseName}'. Pocket se ₹${formattedShare} nikaal bhai!`,
-      funCaption: "Pocket se hissa nikaal bhai! 💸"
+      title: "Splitlok • Ledger Ping ⚡",
+      body: `${payerName} paid ₹${formattedTotal} on '${expenseName}'. You owe ₹${formattedShare} — settle up before chai talks turn serious! ☕`,
+      funCaption: "Instant flat ledger sync active"
     }
   ];
 
@@ -48,7 +49,7 @@ export const getRandomExpenseMessage = ({ payerName, expenseName, memberShare, t
 };
 
 /**
- * 2. Payment Reminders (Paisa nikalwane ki ninja technique 🥷)
+ * 2. Payment Reminders (Friendly Nudge)
  */
 export const getRandomReminderMessage = ({ creditorName, amount, flatName }) => {
   const formattedAmount = Number(amount).toLocaleString('en-IN', {
@@ -58,29 +59,24 @@ export const getRandomReminderMessage = ({ creditorName, amount, flatName }) => 
 
   const templates = [
     {
-      title: "Bhai paise kab dega? 🥺",
-      body: `${creditorName} is still waiting for ₹${formattedAmount}. "Kal pakka dunga" wali trick purani ho gayi, aaj settle kar de! ⏳`,
-      funCaption: '"Kal pakka dunga" wali trick purani ho gayi! 🥺'
+      title: "Splitlok • Friendly Poke ⏳",
+      body: `${creditorName} is poking you for ₹${formattedAmount}. "Kal pakka dunga" trick purani ho gayi, aaj settle kar de! 😜`,
+      funCaption: "1-tap UPI settlement ready"
     },
     {
-      title: "Tareekh pe tareekh! ⚖️",
-      body: `${creditorName} is tired of waiting for ₹${formattedAmount}. Sunny Deol banne se pehle pay kar de bhai! 🔨😤`,
-      funCaption: "Sunny Deol banne se pehle pay kar de bhai! ⚖️"
+      title: "Splitlok • Settle Up Call 📲",
+      body: `${creditorName} wants ₹${formattedAmount} back. Settle button dabao aur tension-free ho jao! 🕊️💸`,
+      funCaption: "Keep flat friendships sweet & clean"
     },
     {
-      title: "Zinda ho ya paise leke bhaag gaye? 🏃‍♂️",
-      body: `${creditorName} is poking you for ₹${formattedAmount}. Bhai izzat ka sawal hai, chup-chaap settle kar de! 🤫💸`,
-      funCaption: "Bhai izzat ka sawal hai, settle kar de! 🏃‍♂️"
+      title: "Splitlok • Tareekh Pe Tareekh! ⚖️",
+      body: `${creditorName} requested ₹${formattedAmount} for flat expenses. Sunny Deol banne se pehle pay kar do bhai! 🔨😤`,
+      funCaption: "Instant ledger settlement in 5s"
     },
     {
-      title: "Dost dost na raha... 💔",
-      body: `Agar ₹${formattedAmount} settle nahi kiye toh! ${creditorName} is waiting. Splitlok khol aur hisaab clear kar! 📲`,
-      funCaption: "Splitlok khol aur hisaab clear kar! 💔"
-    },
-    {
-      title: "Kripya dhyan dein! 📢",
-      body: `${creditorName} wants ₹${formattedAmount} back. Settle button dabao aur tension free ho jao! 🕊️`,
-      funCaption: "Settle dabao aur tension free ho jao! 📢"
+      title: "Splitlok • Gentle Nudge ☕",
+      body: `Pending balance: ₹${formattedAmount} with ${creditorName}. Clear dues before morning chai discussion! 🤝`,
+      funCaption: "Zero awkward money talks"
     }
   ];
 
@@ -88,7 +84,7 @@ export const getRandomReminderMessage = ({ creditorName, amount, flatName }) => 
 };
 
 /**
- * 3. When Someone Settles Up (Paisa hi paisa hoga 🤑)
+ * 3. When Someone Settles Up (Debt Cleared)
  */
 export const getRandomSettlementMessage = ({ payerName, amount, flatName }) => {
   const formattedAmount = Number(amount).toLocaleString('en-IN', {
@@ -98,27 +94,26 @@ export const getRandomSettlementMessage = ({ payerName, amount, flatName }) => {
 
   const templates = [
     {
-      title: "Paisa hi paisa hoga! 🤑",
-      body: `Miracles do happen! ${payerName} ne finally tera ₹${formattedAmount} settle kar diya. Aaj ki party teri taraf se? 🍕🍻`,
-      funCaption: "Miracles do happen! Aaj ki party teri taraf se? 🤑"
+      title: "Splitlok • Paisa Hi Paisa! 🤑",
+      body: `Miracles do happen! ${payerName} cleared ₹${formattedAmount} with you. Ledger balance 0 — aaj ki party teri taraf se? 🍕🍻`,
+      funCaption: "Zero dues • All square!"
     },
     {
-      title: "Ameeri feel ho rahi hai? 💰",
-      body: `${payerName} just paid you ₹${formattedAmount}. Balance check kar le aur khushiyaan mana! 💃✨`,
-      funCaption: "Balance check kar le aur khushiyaan mana! 💰"
+      title: "Splitlok • Dues Cleared ✨",
+      body: `${payerName} just settled ₹${formattedAmount}. A rare sight in flatmate history — balance is officially even! 🏆`,
+      funCaption: "Transaction verified & recorded"
     },
     {
-      title: "Udhaari mukt bharat! 🇮🇳",
-      body: `${payerName} cleared their dues of ₹${formattedAmount}. You are a little richer today, hero! 🏆`,
-      funCaption: "You are a little richer today! 🇮🇳"
+      title: "Splitlok • Debt-Free Era 🕊️",
+      body: `${payerName} sent ₹${formattedAmount}. Account check kar, paisa credit ho chuka hai hero! 🚀`,
+      funCaption: "Continuous ledger math balanced"
     },
     {
-      title: "Laxmi ji aayin hain darwaaze pe! 🪔💸",
-      body: `${payerName} sent ₹${formattedAmount}. Account check kar, paisa credit ho chuka hai! 🚀`,
-      funCaption: "Paisa credit ho chuka hai! 🪔"
+      title: "Splitlok • All Square 🤝",
+      body: `Payment of ₹${formattedAmount} confirmed by ${payerName}. Dosti bani rahe, hisaab clear rahe! 💃`,
+      funCaption: "Penny-perfect zero balance"
     }
   ];
 
   return templates[Math.floor(Math.random() * templates.length)];
 };
-
